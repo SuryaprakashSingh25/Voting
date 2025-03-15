@@ -1,5 +1,6 @@
 package com.voting.tutorialvoting.services;
 
+import com.voting.tutorialvoting.model.OptionVote;
 import com.voting.tutorialvoting.model.Poll;
 import com.voting.tutorialvoting.repositories.PollRepository;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +27,17 @@ public class PollService {
 
     public Optional<Poll> getPollById(Long id) {
         return pollRepository.findById(id);
+    }
+
+    public void vote(Long pollId, int optionIndex) {
+        Poll poll=pollRepository.findById(pollId)
+                .orElseThrow(() -> new RuntimeException("Poll not found"));
+        List<OptionVote> options=poll.getOptions();
+        if(optionIndex<0 || optionIndex>=options.size()){
+            throw new IllegalArgumentException("Invalid Option Index");
+        }
+        OptionVote selectedOption=options.get(optionIndex);
+        selectedOption.setVotesCount(selectedOption.getVotesCount()+1);
+        pollRepository.save(poll);
     }
 }
